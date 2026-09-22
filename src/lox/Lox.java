@@ -34,7 +34,7 @@ public class Lox {
         InputStreamReader input = new InputStreamReader(System.in);
         BufferedReader reader = new BufferedReader(input);
 
-        for (;;) {
+        for (; ; ) {
             System.out.print("> ");
             String line = reader.readLine();
             if (line == null) break;
@@ -46,10 +46,11 @@ public class Lox {
     private static void run(String source) {
         Scanner scanner = new Scanner(source);
         List<Token> tokens = scanner.scanTokens();
+        Parser parser = new Parser(tokens);
+        Expr expression = parser.parse();
 
-        for (Token token : tokens) {
-            System.out.println(token);
-        }
+        // Stop if there was a syntax error.
+        if (hadError) return;
     }
 
     static void error(int line, String message) {
@@ -63,5 +64,8 @@ public class Lox {
         hadError = true;
     }
 
-
+    static void error(Token token, String message) {
+        if (token.type == TokenType.EOF) report(token.line, " at end", message);
+        else report(token.line, " at '" + token.lexeme + "'", message);
+    }
 }
